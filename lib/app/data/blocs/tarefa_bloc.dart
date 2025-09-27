@@ -1,32 +1,24 @@
 import 'dart:async';
 
+import 'package:bloc/bloc.dart';
 import 'package:bloc_puro/app/data/blocs/tarefa_event.dart';
 import 'package:bloc_puro/app/data/blocs/tarefa_state.dart';
 import 'package:bloc_puro/app/data/models/tarefa_model.dart';
 import 'package:bloc_puro/app/data/repositories/tarefa_repository.dart';
 
-class TarefaBloc {
+//Bloc<Entrada,Saida>
+class TarefaBloc extends Bloc<TarefaEvent, TarefaState> {
   final _repository = TarefaRepository();
 
-  final StreamController<TarefaEvent> _inputTarefaController =
-      StreamController<TarefaEvent>();
-  final StreamController<TarefaState> _outputTarefaController =
-      StreamController<TarefaState>();
-
-  //expondo a entrada para o view
-  Sink<TarefaEvent> get inputTarefa => _inputTarefaController.sink;
-  //expondo a saída
-  Stream<TarefaState> get outputTarefa => _outputTarefaController.stream;
-
-  TarefaBloc() {
-    //fica ouvindo todos os eventos
-    _inputTarefaController.stream.listen(_mapEventToState);
+  //passado o estado inicial via super
+  TarefaBloc() : super(TarefaInitalState()) {
+    on(_mapEventToState);
   }
 
-  void _mapEventToState(TarefaEvent event) async {
+  void _mapEventToState(TarefaEvent event, Emitter emit) async {
     List<TarefaModel> tarefas = [];
 
-    _outputTarefaController.add(TarefaLoadingState());
+    emit(TarefaLoadingState());
 
     if (event is GetTarefas) {
       tarefas = await _repository.getTarefas();
@@ -36,6 +28,6 @@ class TarefaBloc {
       tarefas = await _repository.deleteTarefa(tarefa: event.tarefa);
     }
 
-    _outputTarefaController.add(TarefaLoadedState(tarefas: tarefas));
+    emit(TarefaLoadedState(tarefas: tarefas));
   }
 }
