@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:bloc_puro/app/data/blocs/tarefa_event.dart';
 import 'package:bloc_puro/app/data/blocs/tarefa_state.dart';
